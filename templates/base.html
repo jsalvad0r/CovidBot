@@ -1,0 +1,32 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'vendor/semantic-ui/dist/semantic.min.css' %}" media="screen" title="no title" charset="utf-8">
+
+    <title>Hello, world!</title>
+  </head>
+  <body>
+    {% block container %}
+    {% endblock %}
+<!-- 
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script> -->
+    <script src="{% static 'js/vendor/jquery.min.js' %}" charset="utf-8"></script>
+    <script src="{% static 'vendor/semantic-ui/dist/semantic.min.js' %}" charset="utf-8"></script>
+    
+    <script src="{% static 'js/vendor/vue.min.js' %}"></script>
+    <script src="{% static 'js/vendor/axios.min.js'%}"></script>
+    {# // vuetable-2 #}
+    <script src="{% static 'js/vendor/vuetable-2.js' %}"></script>
+    <script src="{% static 'js/vendor/vue-google-maps.js' %}"></script>
+    {% block js %}
+    {% endblock %}
+</body>
+</html>

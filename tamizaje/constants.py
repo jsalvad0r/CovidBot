@@ -1,0 +1,10 @@
+DNI_DOCUMENT = '01'
+IMMIGRATION_CARD = '03'
+DOCUMENTO_TYPE_CHOICES = (
+    (DNI_DOCUMENT, 'DNI'),
+    (IMMIGRATION_CARD, 'CARNET DE EXTRANJERIA'),
+)
+GENDER_CHOICES = (
+    ('male', 'Male'),
+    ('female', 'Female')
+)
