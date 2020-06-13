@@ -45,15 +45,38 @@ new Vue({
                 dataClass: 'center aligned'                
             },
             {
+                name: 'distance',
+                title: 'Distancia',
+                titleClass: 'center aligned',
+                dataClass: 'center aligned',
+                callback: 'setLoadingIcon'
+            },
+            {
+                name: 'duration',
+                title: 'Duración',
+                titleClass: 'center aligned',
+                dataClass: 'center aligned',
+                callback: 'setLoadingIcon'
+            },
+            {
                 name: 'photo',
                 visible: false
             },
             '__slot:actions'
-        ]
+        ],
+        googleMapsAPIURL: "https://maps.googleapis.com/maps/api/distancematrix/json",
+        googleMapsAPIKey: "AIzaSyDmLLWgwh9Jd_dV3JdybN868up0RXNvBRU",
     },
     methods: {
+        setLoadingIcon(value){
+            if(value){
+                return value
+            }
+            return '<div class="ui active inline loader"></div>'
+        },
         onPaginationData(paginationData) {
             this.$refs.pagination.setPaginationData(paginationData)
+            this.loadMatrixGoogle();
         },
         onChangePage(page) {
             this.$refs.vuetable.changePage(page)
@@ -68,6 +91,27 @@ new Vue({
                     google.maps.event.trigger(input, "keydown", {keyCode: 13});
                   },
             });
+        },
+        loadMatrixGoogle(){
+            data = this.$refs.vuetable["tableData"];
+            self = this;
+            data.map(function(person, index){
+                let addresOrigin = "Av. brasil 2045 Lima Peru";
+                let addrsDestination = person.address;
+                var service = new google.maps.DistanceMatrixService();
+                service.getDistanceMatrix(
+                    {
+                        origins: [addresOrigin],
+                        destinations: [addrsDestination],
+                        travelMode: 'DRIVING'
+                    }, function (response, status) {
+                        elements = response.rows[0].elements
+                        if (elements) {
+                            self.$refs.vuetable["tableData"][index]['distance'] = elements[0].distance.text
+                            self.$refs.vuetable["tableData"][index]['duration'] = elements[0].duration.text
+                        }
+                    })
+            })
         },
         deleteRow(rowData) {
             alert("You clicked delete on" + JSON.stringify(rowData))

@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 class CustomPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 3
     def get_paginated_response(self, data):
         #import pdb; pdb.set_trace()
         return Response({
@@ -19,6 +19,8 @@ class CustomPagination(PageNumberPagination):
             'to': self.page_size * self.page.number,
             'data': data
         })
+
+
 class PatientListAPIView(ListAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer

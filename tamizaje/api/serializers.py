@@ -9,13 +9,15 @@ class PatientSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(source="person.get_gender_display")
     age = serializers.CharField(source="person.age_year")
     photo = serializers.CharField(source="person.photo")
+    distance = serializers.CharField(default="")
+    duration = serializers.CharField(default="")
 
     class Meta:
         model = Patient
         fields = (
             'document_type', 'document_number',
             'full_name', 'gender', 'address',
-            'age', 'photo'
+            'age', 'photo', 'distance', 'duration'
         )
     
     def get_address(self, obj):

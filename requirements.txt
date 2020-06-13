@@ -1,4 +1,5 @@
 django==2.2
 faker==4.1.0
-beautifulsoup4=4.9.1
-git+ssh://git@git.minsa.gob.pe/oidt/mpi-client.git@develop#egg=mpi_client
+beautifulsoup4==4.9.1
+python-dotenv==0.13.0
+#git+ssh://git@git.minsa.gob.pe/oidt/mpi-client.git@develop#egg=mpi_client
