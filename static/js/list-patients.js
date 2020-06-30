@@ -81,15 +81,28 @@ new Vue({
         onChangePage(page) {
             this.$refs.vuetable.changePage(page)
         },
-        generatePath(photo, address) {
+        generateRoute(photo, address) {
             this.userProfileImg = `data:img/png;base64,${photo}`;
             this.addressUser = address;
-            $('.ui.modal').modal('show').modal({
-                onVisible: function () {
-                    let input = document.getElementById("search-address-input");
-                    google.maps.event.trigger(input, "focus", {});
-                    google.maps.event.trigger(input, "keydown", {keyCode: 13});
-                  },
+            let input = document.getElementById("search-address-input");
+            //google.maps.event.trigger(input, "focus", {});
+            //google.maps.event.trigger(input, "keydown", {keyCode: 13});
+            let directionRequest = {
+                origin: 'Av. brasil 2045 Lima Peru',
+                destination: address,
+                provideRouteAlternatives: false,
+                travelMode: 'DRIVING',
+                drivingOptions: {
+                    departureTime: new Date(/* now, or future date */),
+                    trafficModel: 'pessimistic'
+                },
+                unitSystem: google.maps.UnitSystem.IMPERIAL
+            }
+            directionsService.route(directionRequest, function (result, status) {
+                if (status == 'OK') {
+                    directionsRenderer.setDirections(result);
+                    $('.ui.modal').modal('show');
+                }
             });
         },
         loadMatrixGoogle(){
