@@ -1,0 +1,10 @@
+.low-risk {
+    background-color: #66da81 !important;
+}
+.middle-risk {
+    background-color: #e6bb48 !important;
+}
+
+.high-risk{
+    background-color: #d95c5c !important;
+}

@@ -1,13 +1,15 @@
 from rest_framework.generics import ListAPIView
-from tamizaje.models import Patient
-from .serializers import PatientSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from tamizaje.models import Patient
+
+from .serializers import PatientSerializer
+
+
 class CustomPagination(PageNumberPagination):
-    page_size = 3
+    page_size = 20
     def get_paginated_response(self, data):
-        #import pdb; pdb.set_trace()
         return Response({
             'total': self.page.paginator.count,
             'per_page': self.page_size,
@@ -22,6 +24,17 @@ class CustomPagination(PageNumberPagination):
 
 
 class PatientListAPIView(ListAPIView):
-    queryset = Patient.objects.all()
     serializer_class = PatientSerializer
     pagination_class = CustomPagination
+
+    def get_queryset(self):
+        params = self.request.query_params
+        queryset = Patient.objects.all()
+        if 'death_rate_covid19' in params:
+            if params.get('death_rate_covid19') == 'bajo':
+                queryset = queryset.filter(death_rate_covid19__lt=50.00)
+            elif params.get('death_rate_covid19') == 'intermedio':
+                queryset = queryset.filter(death_rate_covid19__gte=50.00, death_rate_covid19__lt=80.00)
+            elif params.get('death_rate_covid19') == 'alto':
+                queryset = queryset.filter(death_rate_covid19__gte=80.00)
+        return queryset.order_by('-death_rate_covid19')
