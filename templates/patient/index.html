@@ -2,79 +2,103 @@
 {% load static %}
 {% block container %}
 <div id="app">
-    <div class="ui container">
-        <vuetable ref="vuetable" api-url="{% url 'tamizaje:api:patients' %}" :fields="fields" pagination-path=""
-            @vuetable:pagination-data="onPaginationData" data-path="data">
-            <template slot="actions" scope="props">
-                <div class="table-button-container">
-                    <button class="ui primary basic button btn-show" @click='generateRoute(props.rowData.photo, props.rowData.address)'>
-                        <i class="map marker alternate icon"></i></i>
-                    </button>
-                </div>
-            </template>
-        </vuetable>
-        <div class="vuetable-pagination ui basic segment grid">
-            <vuetable-pagination-info ref="paginationInfo"></vuetable-pagination-info>
-        
-            <vuetable-pagination ref="pagination" @vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
-        </div>
+  <div class="ui container">
+    <div class="ui horizontal segments">
+      <button class="ui blue segment" @click="setParamsApiPatient({})">
+        <p>Todos</p>
+      </button>
+      <button class="ui green segment" @click="setParamsApiPatient({death_rate_covid19: 'bajo'})">
+        <p>Bajo</p>
+      </button>
+      <button class="ui yellow segment" @click="setParamsApiPatient({death_rate_covid19: 'intermedio'})">
+        <p>Intermedio</p>
+      </button>
+      <button class="ui red segment" @click="setParamsApiPatient({death_rate_covid19: 'alto'})">
+        <p>Alto</p>
+      </button>
     </div>
+    <vuetable ref="vuetable" :api-url="urlApiPatients" :fields="fields" pagination-path=""
+      @vuetable:pagination-data="onPaginationData" data-path="data">
+      <template slot="actions" scope="props">
+        <div class="table-button-container">
+          <button class="ui primary basic button btn-show"
+            @click='generateRoute(props.rowData)'>
+            <i class="map marker alternate icon"></i></i>
+          </button>
+        </div>
+      </template>
+    </vuetable>
+    <div class="vuetable-pagination ui basic segment grid">
+      <vuetable-pagination-info ref="paginationInfo"></vuetable-pagination-info>
 
-    <div class="ui modal">
-        <i class="close icon"></i>
-        <div class="header">
-          Ubicación
+      <vuetable-pagination ref="pagination" @vuetable-pagination:change-page="onChangePage"></vuetable-pagination>
+    </div>
+  </div>
+
+  <div class="ui modal">
+    <i class="close icon"></i>
+    <div class="header ui indicating progress active" id="level-risk">
+      <div class="bar">
+        <div class="progress">[[ patient.death_rate_covid19 ]]%</div>
+      </div>
+    </div>
+    <div class="image content">
+      <div class="ui small image">
+        <div class="image">
+          <img v-bind:src="patient.photo">
         </div>
-        <div class="image content">
-          <div class="ui small image">
-            <img v-bind:src="userProfileImg">
-          </div>
-          <div class="description">
-            <input id="search-address-input" class="controls" type="text" v-bind:value="addressUser">
-            <div id="map">
-            </div>
-          </div>
-        </div>
-        <div class="actions">
-          <div class="ui black deny button">
-            Nope
-          </div>
-          <div class="ui positive right labeled icon button">
-            Yep, that's me
-            <i class="checkmark icon"></i>
-          </div>
+        <br>
+        <div class="content">
+          Nombre: <a>[[ patient.full_name ]]</a><br>
+          Edad: <a>[[ patient.age ]] años</a><br>
+          Padecimiento: <a>[[ patient.risk_factors_display ]] años</a><br>
+          Síntomas: <a>[[ patient.symptons ]] años</a><br>
+          ¿Tuvo contacto con caso confirmado?: <a>[[ patient.had_contact_covid ]] años</a><br>
+          Celular: <a>[[ patient.phone_number ]] años</a>
         </div>
       </div>
+      <div class="description">
+        <input id="search-address-input" class="controls" type="text" v-bind:value="patient.address">
+        <div id="map">
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <style>
-    #app {
-      font-family: 'Avenir', Helvetica, Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-align: center;
-      color: #2c3e50;
-      margin-top: 60px;
-    }
-    .ui.modal{
-        width: 80%;
-        height: 80%;
-    }
-    .ui.modal .image.content{
-        height: 80%;
-    }
-    .description{
-      width: 100% !important;
-    }
-    #map {
-        height: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 60px;
+  }
 
+  .ui.modal {
+    width: 80%;
+    height: 80%;
+  }
+
+  .ui.modal .image.content {
+    height: 80%;
+  }
+
+  .description {
+    width: 100% !important;
+  }
+
+  #map {
+    height: 100%;
+  }
+
+  /* Optional: Makes the sample page fill the window. */
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
 </style>
 {% endblock%}
 {% block js %}
@@ -89,7 +113,7 @@
   var map;
   var directionsService;
   var directionsRenderer;
-  
+
   function initAutocomplete() {
     map = new google.maps.Map(document.getElementById('map'), {
       center: { lat: -12.046374, lng: -77.042793 },
@@ -105,14 +129,14 @@
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     // Bias the SearchBox results towards current map's viewport.
-    map.addListener('bounds_changed', function() {
+    map.addListener('bounds_changed', function () {
       searchBox.setBounds(map.getBounds());
     });
 
     var markers = [];
     // Listen for the event fired when the user selects a prediction and retrieve
     // more details for that place.
-    searchBox.addListener('places_changed', function() {
+    searchBox.addListener('places_changed', function () {
       var places = searchBox.getPlaces();
 
       if (places.length == 0) {
@@ -120,14 +144,14 @@
       }
 
       // Clear out the old markers.
-      markers.forEach(function(marker) {
+      markers.forEach(function (marker) {
         marker.setMap(null);
       });
       markers = [];
 
       // For each place, get the icon, name and location.
       var bounds = new google.maps.LatLngBounds();
-      places.forEach(function(place) {
+      places.forEach(function (place) {
         if (!place.geometry) {
           console.log("Returned place contains no geometry");
           return;
@@ -159,9 +183,18 @@
     });
   }
 
+  $("#level-risk").progress({
+    label: 'ratio',
+    text: {
+      ratio: '{value}%'
+    }
+  });
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmLLWgwh9Jd_dV3JdybN868up0RXNvBRU&libraries=places&callback=initAutocomplete"
-     async defer></script>
-
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmLLWgwh9Jd_dV3JdybN868up0RXNvBRU&libraries=places&callback=initAutocomplete"
+  async defer></script>
+<script>
+  urlApiPatients = "{% url 'tamizaje:api:patients' %}"
+</script>
 <script src="{% static 'js/list-patients.js' %}"></script>
 {% endblock %}

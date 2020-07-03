@@ -1,21 +1,24 @@
 Vue.use(Vuetable);
 new Vue({
     el: '#app',
+    delimiters: ['[[', ']]'],
     components: {
         'vuetable-pagination': Vuetable.VuetablePagination
     },
     data: {
-        userProfileImg: '',
+        urlApiPatients: urlApiPatients,
+        patient: {},
         addressUser: '',
         fields: [
             {
-                name: 'document_type',
-                title: 'Tipo documento',
+                name: 'death_rate_covid19',
+                title: 'Nivel de riesgo',
                 titleClass: 'center aligned',
-                dataClass: 'center aligned'
+                dataClass: 'center aligned',
+                callback: 'formatRiskLevel'
             },
             {
-                name: 'document_number',
+                name: 'document',
                 title: 'Número documento',
                 titleClass: 'center aligned',
                 dataClass: 'center aligned'                
@@ -62,12 +65,38 @@ new Vue({
                 name: 'photo',
                 visible: false
             },
+            {
+                name: 'phone_number',
+                visible: false
+            },
+            {
+                name: 'risk_factors_display',
+                visible: false
+            },
+            {
+                name: 'symptons',
+                visible: false
+            },
+            {
+                name: 'had_contact_covid',
+                visible: false
+            },
             '__slot:actions'
         ],
         googleMapsAPIURL: "https://maps.googleapis.com/maps/api/distancematrix/json",
         googleMapsAPIKey: "AIzaSyDmLLWgwh9Jd_dV3JdybN868up0RXNvBRU",
     },
     methods: {
+        formatRiskLevel(value){
+            value = parseFloat(value);
+            if(value < 50.00){
+                return '<button class="ui circular low-risk icon button"><i class="icon"></i></button></button>'
+            }else if(value >= 50.00 && value < 80){
+                return '<button class="ui circular middle-risk icon button"><i class="icon"></i></button></button>'
+            }else if(value >= 80.00){
+                return '<button class="ui circular high-risk icon button"><i class="icon"></i></button></button>'
+            }
+        },
         setLoadingIcon(value){
             if(value){
                 return value
@@ -76,34 +105,51 @@ new Vue({
         },
         onPaginationData(paginationData) {
             this.$refs.pagination.setPaginationData(paginationData)
-            this.loadMatrixGoogle();
+            //this.loadMatrixGoogle();
         },
         onChangePage(page) {
             this.$refs.vuetable.changePage(page)
         },
-        generateRoute(photo, address) {
-            this.userProfileImg = `data:img/png;base64,${photo}`;
-            this.addressUser = address;
+        generateRoute(patient) {
+            this.patient = patient
+            this.patient['photo'] = `data:img/png;base64,${patient.photo}`;
             let input = document.getElementById("search-address-input");
             //google.maps.event.trigger(input, "focus", {});
             //google.maps.event.trigger(input, "keydown", {keyCode: 13});
-            let directionRequest = {
-                origin: 'Av. brasil 2045 Lima Peru',
-                destination: address,
-                provideRouteAlternatives: false,
-                travelMode: 'DRIVING',
-                drivingOptions: {
-                    departureTime: new Date(/* now, or future date */),
-                    trafficModel: 'pessimistic'
-                },
-                unitSystem: google.maps.UnitSystem.IMPERIAL
+            death_rate_covid19 = parseFloat(patient.death_rate_covid19)
+            if(death_rate_covid19 < 1){
+                $("#level-risk").find('.bar').width('5%');
+            }else{
+                $("#level-risk").find('.bar').width(`${death_rate_covid19}%`);
             }
-            directionsService.route(directionRequest, function (result, status) {
-                if (status == 'OK') {
-                    directionsRenderer.setDirections(result);
-                    $('.ui.modal').modal('show');
-                }
-            });
+            if(death_rate_covid19 < 50.00){
+                $("#level-risk .bar").removeClass('high-risk middle-risk');
+                $("#level-risk .bar").addClass('low-risk');
+            }else if(death_rate_covid19 >= 50.00 && death_rate_covid19 < 80.00){
+                $("#level-risk .bar").removeClass('high-risk low-risk');
+                $("#level-risk .bar").addClass('middle-risk');
+            }else{
+                $("#level-risk .bar").removeClass('low-risk middle-risk');
+                $("#level-risk .bar").addClass('high-risk');
+            }
+            $('.ui.modal').modal('show');
+            // let directionRequest = {
+            //     origin: 'Av. brasil 2045 Lima Peru',
+            //     destination: address,
+            //     provideRouteAlternatives: false,
+            //     travelMode: 'DRIVING',
+            //     drivingOptions: {
+            //         departureTime: new Date(/* now, or future date */),
+            //         trafficModel: 'pessimistic'
+            //     },
+            //     unitSystem: google.maps.UnitSystem.IMPERIAL
+            // }
+            // directionsService.route(directionRequest, function (result, status) {
+            //     if (status == 'OK') {
+            //         directionsRenderer.setDirections(result);
+            //         $('.ui.modal').modal('show');
+            //     }
+            // });
         },
         loadMatrixGoogle(){
             data = this.$refs.vuetable["tableData"];
@@ -125,6 +171,13 @@ new Vue({
                         }
                     })
             })
+        },
+        setParamsApiPatient(params){
+            let listParams = []
+            Object.keys(params).map(function(key){
+                listParams.push(`${key}=${params[key]}`)
+            });
+            this.urlApiPatients = `${this.urlApiPatients.split('?')[0]}?${listParams.join('&')}`
         },
         deleteRow(rowData) {
             alert("You clicked delete on" + JSON.stringify(rowData))

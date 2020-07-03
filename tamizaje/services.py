@@ -1,20 +1,27 @@
-from mpi_client.client import MPIClient
-from django.conf import settings
-import requests
-from bs4 import BeautifulSoup
 import base64
 from random import randint
 
+import requests
+from bs4 import BeautifulSoup
+from django.conf import settings
+from mpi_client.client import MPIClient
+
+from .constants import DNI_DOCUMENT
+from .models import Person
+
 MPI_API_TOKEN = 'b87f096c846642159ee9e9d2b135f7d4'
 
-class CitizenAPI:
+
+class ReniecClient:
     mpi_client = MPIClient(settings.MPI_API_TOKEN)
 
     @classmethod
     def search(cls, document_number, birthdate):
-        response = self.mpi_client.get(f"{settings.MPI_API_HOST}/api/v1/ciudadano/ver/{DNI_DOCUMENT}/{document_number}/")
+        response = cls.mpi_client.get(
+            f"{settings.MPI_API_HOST}/api/v1/ciudadano/ver/{DNI_DOCUMENT}/{document_number}/"
+        )
         if response:
-            citizen  = response.json().get('data').get('attributes')
+            citizen = response.json().get('data').get('attributes')
             temp = {
                 'document_type': citizen.get('tipo_documento'),
                 'document_number': citizen.get('numero_documento'),
@@ -23,8 +30,8 @@ class CitizenAPI:
             }
             brithdate_reniec = citizen.get('fecha_nacimiento')
             if datetime.strptime(birthdate, '%Y-%m-%d') == datetime.strptime(brithdate_reniec, '%Y-%m-%d'):
-                return SuspectedPatient.objects.create(**temp)
-        return None
+                return Person(**temp), None
+        return None, 'Los datos que proporciono son incorrectos'
 
 class Scrapper:
 

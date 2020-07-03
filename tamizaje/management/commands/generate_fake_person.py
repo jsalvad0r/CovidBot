@@ -1,20 +1,23 @@
+from random import randint
+
 from django.core.management import BaseCommand
 from faker import Faker
-from tamizaje.models import Person, Patient
+
 from tamizaje.constants import GENDER_CHOICES
-from random import randint
+from tamizaje.models import Patient, Person
 from tamizaje.services import Scrapper
+
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('total', type=int)
-    
+
     def handle(self, *args, **options):
         if options['total']:
             faker = Faker()
             for i in range(options['total']):
-                _gender = GENDER_CHOICES[randint(0,1)][0]
+                _gender = GENDER_CHOICES[randint(0, 1)][0]
                 _name = faker.name_male()
                 if _gender == 'female':
                     _name = faker.name_female()
