@@ -105,20 +105,24 @@ new Vue({
         },
         onPaginationData(paginationData) {
             this.$refs.pagination.setPaginationData(paginationData)
-            //this.loadMatrixGoogle();
+            navigator.geolocation.getCurrentPosition(this.loadMatrixGoogle);
         },
         onChangePage(page) {
             this.$refs.vuetable.changePage(page)
         },
         generateRoute(patient) {
             this.patient = patient
-            this.patient['photo'] = `data:img/png;base64,${patient.photo}`;
-            let input = document.getElementById("search-address-input");
+            if(patient.photo){
+                this.patient['photo'] = `data:img/png;base64,${patient.photo}`;
+            }else{
+                this.patient['photo'] = "https://eshendetesia.com/images/user-profile.png"
+            }
+            //let input = document.getElementById("search-address-input");
             //google.maps.event.trigger(input, "focus", {});
             //google.maps.event.trigger(input, "keydown", {keyCode: 13});
             death_rate_covid19 = parseFloat(patient.death_rate_covid19)
             if(death_rate_covid19 < 1){
-                $("#level-risk").find('.bar').width('5%');
+                $("#level-risk").find('.bar').width('10%');
             }else{
                 $("#level-risk").find('.bar').width(`${death_rate_covid19}%`);
             }
@@ -132,30 +136,34 @@ new Vue({
                 $("#level-risk .bar").removeClass('low-risk middle-risk');
                 $("#level-risk .bar").addClass('high-risk');
             }
-            $('.ui.modal').modal('show');
-            // let directionRequest = {
-            //     origin: 'Av. brasil 2045 Lima Peru',
-            //     destination: address,
-            //     provideRouteAlternatives: false,
-            //     travelMode: 'DRIVING',
-            //     drivingOptions: {
-            //         departureTime: new Date(/* now, or future date */),
-            //         trafficModel: 'pessimistic'
-            //     },
-            //     unitSystem: google.maps.UnitSystem.IMPERIAL
-            // }
-            // directionsService.route(directionRequest, function (result, status) {
-            //     if (status == 'OK') {
-            //         directionsRenderer.setDirections(result);
-            //         $('.ui.modal').modal('show');
-            //     }
-            // });
+            let directionRequest = {
+                origin: 'Av. brasil 2045 Lima Peru',
+                destination: this.patient.address,
+                provideRouteAlternatives: false,
+                travelMode: 'DRIVING',
+                drivingOptions: {
+                    departureTime: new Date(/* now, or future date */),
+                    trafficModel: 'pessimistic'
+                },
+                unitSystem: google.maps.UnitSystem.IMPERIAL
+            }
+            directionsService.route(directionRequest, function (result, status) {
+                if (status == 'OK') {
+                    directionsRenderer.setDirections(result);
+                    $('.ui.modal').modal('show');
+                }
+            });
         },
-        loadMatrixGoogle(){
+        loadMatrixGoogle(position){
             data = this.$refs.vuetable["tableData"];
             self = this;
+            currentLat = position.coords.latitude;
+            currentLng = position.coords.longitude;
+            console.log(currentLat, currentLng)
+            this.showCurrentPosition
             data.map(function(person, index){
-                let addresOrigin = "Av. brasil 2045 Lima Peru";
+                //let addresOrigin = "Av. brasil 2045 Lima Peru";
+                let addresOrigin = new google.maps.LatLng(currentLat, currentLng);
                 let addrsDestination = person.address;
                 var service = new google.maps.DistanceMatrixService();
                 service.getDistanceMatrix(
@@ -166,8 +174,8 @@ new Vue({
                     }, function (response, status) {
                         elements = response.rows[0].elements
                         if (elements) {
-                            self.$refs.vuetable["tableData"][index]['distance'] = elements[0].distance.text
-                            self.$refs.vuetable["tableData"][index]['duration'] = elements[0].duration.text
+                            self.$refs.vuetable["tableData"][index]['distance'] = self.patient['distance'] = elements[0].distance.text
+                            self.$refs.vuetable["tableData"][index]['duration'] = self.patient['duration'] = elements[0].duration.text
                         }
                     })
             })

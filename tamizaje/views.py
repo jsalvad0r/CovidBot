@@ -25,15 +25,20 @@ def webhook(request):
     padecimiento = parameters.get('padecimiento')
     had_contact_covid = parameters.get('contacto_covid')
     sintoma = parameters.get('sintoma')
-    patient = Patient.objects.get(
+    patient = Patient.objects.filter(
         person__document_number=document_number, person__document_type='01'
-    )
+    ).first()
     if not patient:
-        person, msg = ReniecClient.search(document_number, birthdate)
+        person, msg = ReniecClient.search_and_create(document_number, birthdate)
         if not person:
             return JsonResponse({
                 'fulfillmentText': msg
             }, safe=True)
+        person.address_set.create(
+            city='Lima',
+            state='Lima',
+            street=address
+        )
         patient = Patient(person=person)
     
     if not padecimiento == 'none':
@@ -44,15 +49,10 @@ def webhook(request):
         patient.symptons = sintoma
     person = patient.person
     person.phone_number = phone_number
+    person.save()
     patient.save()
     patient.calculate_death_rate_covid()
     fulfillmentText = {
-        'fulfillmentText': f'''
-            Sr(a) {str(patient.person)} su nivel de riesgo es {patient.risk_level},
-            un personal de salud se acercara a su domicilio para tomar la muestra,
-            no se preocupe estamos tomando en cuenta su nivel de riesgo asi
-            que trataremos de hacerle llegar la atención lo mas pronto.
-            Que se mejore
-        '''
+        'fulfillmentText': f'Sr(a) {patient.person.full_name} su nivel de riesgo es {patient.risk_level}, un personal de salud se acercara a su domicilio para tomar la muestra, no se preocupe estamos tomando en cuenta su nivel de riesgo asi que trataremos de hacerle llegar la atención lo mas pronto.Que se mejore'
     }
     return JsonResponse(fulfillmentText, safe=False)

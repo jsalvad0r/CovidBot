@@ -39,7 +39,7 @@
     <i class="close icon"></i>
     <div class="header ui indicating progress active" id="level-risk">
       <div class="bar">
-        <div class="progress">[[ patient.death_rate_covid19 ]]%</div>
+        <div class="progress">[[ patient.death_rate_covid19 ]]% (Riesgo)</div>
       </div>
     </div>
     <div class="image content">
@@ -51,14 +51,16 @@
         <div class="content">
           Nombre: <a>[[ patient.full_name ]]</a><br>
           Edad: <a>[[ patient.age ]] años</a><br>
-          Padecimiento: <a>[[ patient.risk_factors_display ]] años</a><br>
-          Síntomas: <a>[[ patient.symptons ]] años</a><br>
-          ¿Tuvo contacto con caso confirmado?: <a>[[ patient.had_contact_covid ]] años</a><br>
-          Celular: <a>[[ patient.phone_number ]] años</a>
+          Padecimiento: <a>[[ patient.risk_factors_display ]]</a><br>
+          Síntomas: <a>[[ patient.symptons ]]</a><br>
+          ¿Tuvo contacto con caso confirmado?: <a>[[ patient.had_contact_covid ]]</a><br>
+          Celular: <a>[[ patient.phone_number ]]</a><br>
+          <strong>Distancia: </strong><a>[[ patient.distance ]]</a><br>
+          <strong>Duración: </strong><a>[[ patient.duration ]]</a>
         </div>
       </div>
       <div class="description">
-        <input id="search-address-input" class="controls" type="text" v-bind:value="patient.address">
+        <input id="search-address-input" class="controls" type="hidden" v-bind:value="patient.address">
         <div id="map">
         </div>
       </div>
