@@ -20,7 +20,7 @@ class PatientSerializer(serializers.ModelSerializer):
         fields = (
             'death_rate_covid19', 'document',
             'full_name', 'gender', 'address',
-            'age', 'photo', 'distance', 'duration'
+            'age', 'photo', 'distance', 'duration',
             'phone_number', 'risk_factors_display',
             'symptons', 'had_contact_covid'
         )

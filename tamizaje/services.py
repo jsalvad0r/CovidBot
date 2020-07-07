@@ -4,34 +4,37 @@ from random import randint
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from mpi_client.client import MPIClient
+from datetime import datetime
 
 from .constants import DNI_DOCUMENT
 from .models import Person
 
-MPI_API_TOKEN = 'b87f096c846642159ee9e9d2b135f7d4'
-
 
 class ReniecClient:
-    mpi_client = MPIClient(settings.MPI_API_TOKEN)
 
     @classmethod
-    def search(cls, document_number, birthdate):
-        response = cls.mpi_client.get(
-            f"{settings.MPI_API_HOST}/api/v1/ciudadano/ver/{DNI_DOCUMENT}/{document_number}/"
-        )
-        if response:
-            citizen = response.json().get('data').get('attributes')
-            temp = {
-                'document_type': citizen.get('tipo_documento'),
-                'document_number': citizen.get('numero_documento'),
-                'last_name': f"{citizen.get('apellido_paterno')} {citizen.get('apellido_materno')}",
-                'name': citizen.get('nombres'),
-            }
-            brithdate_reniec = citizen.get('fecha_nacimiento')
-            if datetime.strptime(birthdate, '%Y-%m-%d') == datetime.strptime(brithdate_reniec, '%Y-%m-%d'):
-                return Person(**temp), None
+    def search_and_create(cls, document_number, birthdate, mock=True):
+        if mock:
+            data_person = ReniecClient.mock_person(document_number)
+            return Person.objects.create(**data_person), None
+        # integration with MPI or scrapping reniec - despite of validate that is the right person
+        # it could be possible verify document_number and birthdate
         return None, 'Los datos que proporciono son incorrectos'
+    
+    @staticmethod
+    def mock_person(document_number):
+        data = {
+            '62279648': {
+                'document_type': '01',
+                'document_number': '62279648',
+                'first_last_name': 'Salvador',
+                'second_last_name': 'Rivera',
+                'name': 'Jharol',
+                'birthdate': datetime(1995, 1, 18),
+                'gender': 'male'
+            }
+        }
+        return data[document_number]
 
 class Scrapper:
 

@@ -1,5 +1,12 @@
-django==2.2
-faker==4.1.0
 beautifulsoup4==4.9.1
+Django==2.2
+djangorestframework==3.11.0
+Faker==4.1.0
+pkg-resources==0.0.0
+python-dateutil==2.8.1
 python-dotenv==0.13.0
-#git+ssh://git@git.minsa.gob.pe/oidt/mpi-client.git@develop#egg=mpi_client
+pytz==2020.1
+six==1.15.0
+soupsieve==2.0.1
+sqlparse==0.3.1
+text-unidecode==1.3

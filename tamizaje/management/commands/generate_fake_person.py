@@ -18,6 +18,12 @@ class Command(BaseCommand):
             faker = Faker()
             for i in range(options['total']):
                 _gender = GENDER_CHOICES[randint(0, 1)][0]
+                _risk_factor = [
+                    'have_hypertension', 'have_diabetes', 'is_smoker', 
+                    'have_respiratory_distress_syndrome',
+                    'have_heart_disease', 'have_inmunosupression',
+                    'had_contact_covid'
+                ]
                 _name = faker.name_male()
                 if _gender == 'female':
                     _name = faker.name_female()
@@ -30,7 +36,7 @@ class Command(BaseCommand):
                     birthdate=faker.date_of_birth(),
                     gender=_gender,
                     phone_number=faker.phone_number(),
-                    photo: Scrapper.get_face_base64()
+                    photo=Scrapper.get_face_base64()
                 )
                 address = Scrapper.get_fake_address()
                 person.address_set.create(
@@ -38,5 +44,7 @@ class Command(BaseCommand):
                     state=address.get('state'),
                     street=address.get('street')
                 )
-                Patient.objects.create(person=person)
+                patient = Patient.objects.create(person=person)
+                setattr(patient, _risk_factor[faker.random_int(0, 6)], True)
+                patient.calculate_death_rate_covid()
                 self.stdout.write(self.style.SUCCESS(f'Patient generated successfully {person}'))

@@ -3,7 +3,6 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.utils.functional import cached_property
-from mpi_client.client import MPIClient
 
 from tamizaje.constants import (DNI_DOCUMENT, DOCUMENTO_TYPE_CHOICES,
                                 FEMALE_RISK, GENDER_CHOICES, MALE_GENDER,
@@ -94,7 +93,6 @@ class Patient(BasePatient, SupectedPatient):
             data_base = FEMALE_RISK
             result += FEMALE_RISK[age].get('base')
         if self.have_hypertension:
-            import pdb; pdb.set_trace()
             result += data_base[age].get('hipertension')
         if self.have_diabetes:
             result += data_base[age].get('diabetes')

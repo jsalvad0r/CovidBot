@@ -8,9 +8,17 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{% static 'vendor/semantic-ui/dist/semantic.min.css' %}" media="screen" title="no title" charset="utf-8">
     <link rel="stylesheet" href="{% static 'css/tamizaje.css' %}">
-    <title>Hello, world!</title>
+    <title>CovidBot</title>
   </head>
   <body>
+    <div class="ui borderless main menu">
+      <div class="ui text container">
+        <div class="header item" style="margin-left: 28%;">
+          <img src="{% static 'images/icon_header.jpg' %}" style="height: 8em;width: 8em;">
+          <h2>CovidBot</h2>
+        </div>
+      </div>
+    </div>
     {% block container %}
     {% endblock %}
 <!-- 

@@ -8,7 +8,7 @@ from .serializers import PatientSerializer
 
 
 class CustomPagination(PageNumberPagination):
-    page_size = 20
+    page_size = 15
     def get_paginated_response(self, data):
         return Response({
             'total': self.page.paginator.count,
